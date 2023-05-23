@@ -7,7 +7,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
@@ -18,7 +17,10 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -29,10 +31,17 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.commons.io.FilenameUtils;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.data.general.DefaultPieDataset;
 
 public class Manager extends javax.swing.JFrame {
     public Manager() {
@@ -50,7 +59,6 @@ public class Manager extends javax.swing.JFrame {
         deleteButton = new java.awt.Button();
         newButton = new java.awt.Button();
         openButton = new java.awt.Button();
-        sortButton = new java.awt.Button();
         filterButton = new java.awt.Button();
         attributesPanel = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
@@ -63,18 +71,20 @@ public class Manager extends javax.swing.JFrame {
         ownerLabel = new javax.swing.JLabel();
         groupLabel = new javax.swing.JLabel();
         othersLabel = new javax.swing.JLabel();
+        pathLabel = new javax.swing.JLabel();
         compressButton = new java.awt.Button();
         copyPathButton = new java.awt.Button();
         terminalButton = new java.awt.Button();
+        chartButton = new java.awt.Button();
+        clearFilterButton = new java.awt.Button();
+        chartButton1 = new java.awt.Button();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH
 
         );
-        setMaximumSize(new java.awt.Dimension(1500, 1500));
         setMinimumSize(new java.awt.Dimension(500, 500));
         setUndecorated(true);
-        setPreferredSize(new java.awt.Dimension(1200, 800));
         setResizable(false);
         setSize(new java.awt.Dimension(1200, 800));
 
@@ -87,6 +97,7 @@ public class Manager extends javax.swing.JFrame {
 
         TreeModel model = new FileTreeModel();
         fileTree.setCellRenderer(new FileTreeCellRenderer());
+        //filterModel = new FilteredTreeModel(model);
         fileTree.setModel(model);
 
         //fileTree.setVisible(false);
@@ -141,14 +152,6 @@ public class Manager extends javax.swing.JFrame {
             }
         });
 
-        sortButton.setLabel("Sort");
-        sortButton.setVisible(false);
-        sortButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sortButtonActionPerformed(evt);
-            }
-        });
-
         filterButton.setLabel("Filter");
         filterButton.setVisible(false);
         filterButton.addActionListener(new java.awt.event.ActionListener() {
@@ -190,6 +193,9 @@ public class Manager extends javax.swing.JFrame {
         othersLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
         othersLabel.setText("Others:");
 
+        pathLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        pathLabel.setText("Path:");
+
         javax.swing.GroupLayout attributesPanelLayout = new javax.swing.GroupLayout(attributesPanel);
         attributesPanel.setLayout(attributesPanelLayout);
         attributesPanelLayout.setHorizontalGroup(
@@ -211,7 +217,10 @@ public class Manager extends javax.swing.JFrame {
                             .addComponent(modifiedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(typeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(createdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, attributesPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         attributesPanelLayout.setVerticalGroup(
@@ -237,7 +246,9 @@ public class Manager extends javax.swing.JFrame {
                 .addComponent(groupLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(othersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         compressButton.setLabel("Compress");
@@ -265,6 +276,33 @@ public class Manager extends javax.swing.JFrame {
             }
         });
 
+        chartButton.setActionCommand("Open in terminal");
+        chartButton.setLabel("File Size Chart");
+        chartButton.setVisible(false);
+        chartButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chartButtonActionPerformed(evt);
+            }
+        });
+
+        clearFilterButton.setActionCommand("Open in terminal");
+        clearFilterButton.setLabel("Clear Filter");
+        clearFilterButton.setVisible(false);
+        clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearFilterButtonActionPerformed(evt);
+            }
+        });
+
+        chartButton1.setActionCommand("Open in terminal");
+        chartButton1.setLabel("File Type Chart");
+        chartButton1.setVisible(false);
+        chartButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chartButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -285,29 +323,24 @@ public class Manager extends javax.swing.JFrame {
                 .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(openButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(sortButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(0, 0, 0)
                 .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(compressButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(copyPathButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(terminalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(terminalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chartButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chartButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(attributesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -316,7 +349,6 @@ public class Manager extends javax.swing.JFrame {
                         .addGap(142, 142, 142))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(openButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(sortButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addComponent(renameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addGap(1065, 1065, 1065)
@@ -325,7 +357,18 @@ public class Manager extends javax.swing.JFrame {
                 .addComponent(copyPathButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(55, 55, 55)
                 .addComponent(terminalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(55, 55, 55)
+                .addComponent(chartButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(55, 55, 55)
+                .addComponent(chartButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(55, 55, 55)
+                .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(attributesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -434,34 +477,77 @@ public class Manager extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_openButtonActionPerformed
-
-    private void sortButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_sortButtonActionPerformed
-
+    
+    //Listener to filter the files in the tree
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(fileTree.getModel().getRoot());
-        printNode(root);
-        //FileTreeModel.DirOnlyFilter();
+        String filter = JOptionPane.showInputDialog(fileTree, null, "Extension to filter:", JOptionPane.PLAIN_MESSAGE);
+        filterModel.setFilter(filter);
+        updateTree();     
     }//GEN-LAST:event_filterButtonActionPerformed
     
-    public void printNode(DefaultMutableTreeNode node) {
-
-        int childCount = node.getChildCount();
-
-        System.out.println("---" + node.toString() + "---");
-
-        for (int i = 0; i < childCount; i++) 
+    //Function to get a PieDataset with the size of the files inside the directory
+    public DefaultPieDataset getDataSetBySize(File file) {
+        DefaultPieDataset dps = new DefaultPieDataset();
+        try
         {
-            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) node.getChildAt(i);
-            //DefaultMutableTreeNode childNode =  new DefaultMutableTreeNode(node.getChildAt(i).toString());
-            if (childNode.getChildCount() > 0)
-                printNode(childNode);
-            else 
-                System.out.println(childNode.toString());
+            File[] listOfFiles = file.listFiles();
+            BasicFileAttributes attr;
+            String name;
+            long value;
+            for (File f : listOfFiles) 
+            {
+                name = f.isDirectory() ? f.getName() + "(Dir)" : f.getName();
+                attr = Files.readAttributes(Paths.get(f.getPath()), BasicFileAttributes.class);
+                value = attr.size();
+                dps.setValue(name, value);
+            }
         }
-
-        System.out.println("+++" + node.toString() + "+++");
+        catch(Exception e)
+        {
+            JOptionPane.showMessageDialog(this, "The file can't be found or doesn't exist",
+               "File not found", JOptionPane.ERROR_MESSAGE);
+        }
+        return dps;
+    }
+    
+    //Function to geet a PieDataSet with the type of the files inside the directory
+    public DefaultPieDataset getDataSetByType(File file) {
+        DefaultPieDataset dps = new DefaultPieDataset();
+        Map<String, Integer> types = new HashMap<String, Integer>();
+        try
+        {
+            File[] listOfFiles = file.listFiles();
+            BasicFileAttributes attr;
+            String type;
+            int value;
+            for (File f : listOfFiles) 
+            {
+                attr = Files.readAttributes(Paths.get(f.getPath()), BasicFileAttributes.class);
+                type = f.isDirectory() ? "Directory" : FilenameUtils.getExtension(f.getPath());
+                type = type.equals("") ? "Others" : type;
+                if (types.containsKey(type))
+                {
+                    value = types.get(type);
+                    types.put(type, value + 1);
+                }
+                else
+                {
+                    types.put(type, 1);
+                }
+            }
+            for (Map.Entry<String, Integer> entry : types.entrySet()) 
+            {
+                type = entry.getKey();
+                value = entry.getValue();
+                dps.setValue(type, value);
+            }
+        }
+        catch(Exception e)
+        {
+            JOptionPane.showMessageDialog(this, "The file can't be found or doesn't exist",
+               "File not found", JOptionPane.ERROR_MESSAGE);
+        }
+        return dps;
     }
                                              
     //ActionListener for the fileChooser
@@ -469,9 +555,9 @@ public class Manager extends javax.swing.JFrame {
         if (evt.getActionCommand().equals(javax.swing.JFileChooser.APPROVE_SELECTION)) {
             File selectedFile = fileChooser.getSelectedFile();
             TreeModel fileModel = new FileTreeModel(selectedFile);
-            fileTree.setModel(fileModel);
+            filterModel = new FilteredTreeModel(fileModel);
+            fileTree.setModel(filterModel);
             fileTree.clearSelection();
-            
             
             //This timer allows us to update the tree when a new file or directory is added to the tree
             Timer timer = new Timer(100, new java.awt.event.ActionListener(){
@@ -485,7 +571,7 @@ public class Manager extends javax.swing.JFrame {
                     if (currentChilds != initChilds)
                     {
                         initChilds = currentChilds;
-                        updateTree();
+                        updateTree(); 
                     }
                 }
             });
@@ -493,6 +579,7 @@ public class Manager extends javax.swing.JFrame {
         
         } else if (evt.getActionCommand().equals(javax.swing.JFileChooser.CANCEL_SELECTION)) {
             fileTree.setModel(new FileTreeModel());
+            clearLabels();
         }
     }//GEN-LAST:event_fileChooserActionPerformed
 
@@ -513,11 +600,15 @@ public class Manager extends javax.swing.JFrame {
             {
                 newButton.setEnabled(true);
                 terminalButton.setEnabled(true);
+                chartButton.setEnabled(true);
+                chartButton1.setEnabled(true);
             }
             else
             {
                 newButton.setEnabled(false);
                 terminalButton.setEnabled(false);
+                chartButton.setEnabled(false);
+                chartButton1.setEnabled(false);
             }
         }
         else if (nSelRows > 1)
@@ -529,6 +620,8 @@ public class Manager extends javax.swing.JFrame {
             copyPathButton.setEnabled(false);
             compressButton.setEnabled(true);
             terminalButton.setEnabled(false);
+            chartButton.setEnabled(false);
+            chartButton1.setEnabled(false);
         }
         else
         {
@@ -539,6 +632,8 @@ public class Manager extends javax.swing.JFrame {
             copyPathButton.setEnabled(false);
             compressButton.setEnabled(false);
             terminalButton.setEnabled(false);
+            chartButton.setEnabled(false);
+            chartButton1.setEnabled(false);
         }
     }//GEN-LAST:event_fileTreeValueChanged
 
@@ -631,18 +726,49 @@ public class Manager extends javax.swing.JFrame {
     //Listener to clear selection when the mouse is clicked outside the tree
     private void fileTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fileTreeMouseClicked
         if(fileTree.getRowForLocation(evt.getX(), evt.getY()) == -1)
-        {
-            fileTree.clearSelection();
-            accessedLabel.setText("Accessed: " );
-            modifiedLabel.setText("Modified: " );
-            createdLabel.setText("Created: ");
-            sizeLabel.setText("Size: ");
-            typeLabel.setText("Type: " );
-            ownerLabel.setText("Owner: ");
-            groupLabel.setText("Group: ");
-            othersLabel.setText("Others");
-        }
+            clearLabels();
     }//GEN-LAST:event_fileTreeMouseClicked
+
+    private void clearLabels()
+    {
+        fileTree.clearSelection();
+        accessedLabel.setText("Accessed: " );
+        modifiedLabel.setText("Modified: " );
+        createdLabel.setText("Created: ");
+        sizeLabel.setText("Size: ");
+        typeLabel.setText("Type: " );
+        ownerLabel.setText("Owner: ");
+        groupLabel.setText("Group: ");
+        othersLabel.setText("Others");
+        pathLabel.setText("Path: ");
+    }
+    //Listener to show a PieChart with the size distribution inside a folder
+    private void chartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chartButtonActionPerformed
+        File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
+        DefaultPieDataset dps = getDataSetBySize(selectedFile);
+        JFreeChart chart = ChartFactory.createPieChart("Size distribution", dps, true, true, true);
+        PiePlot P = (PiePlot)chart.getPlot();
+        cf = new ChartFrame(selectedFile.getName() + " in sizes", chart);
+        cf.setVisible(true);
+        cf.setSize(800, 800);
+    }//GEN-LAST:event_chartButtonActionPerformed
+
+    //Listener to clear filters
+    private void clearFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearFilterButtonActionPerformed
+        filterModel.setFilter("");
+        updateTree();
+    }//GEN-LAST:event_clearFilterButtonActionPerformed
+
+    //Listener to show a PieChart with the type distribution inside a folder
+    private void chartButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chartButton1ActionPerformed
+        File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
+        DefaultPieDataset dps = getDataSetByType(selectedFile);
+        JFreeChart chart = ChartFactory.createPieChart("Type distribution", dps, true, true, true);
+        PiePlot P = (PiePlot)chart.getPlot();
+        cf = new ChartFrame(selectedFile.getName() + "in types", chart);
+        cf.setVisible(true);
+        cf.setSize(800, 800);
+    }//GEN-LAST:event_chartButton1ActionPerformed
 
     //Function to show the attribute's values on the labels
     public void showAttributes(File file)
@@ -660,6 +786,7 @@ public class Manager extends javax.swing.JFrame {
             showPermissions(filePermissions);
             String fileExtension = (file.isDirectory() == true) ? "Directory" : FilenameUtils.getExtension(file.getPath());
             typeLabel.setText("Type: " + fileExtension);
+            pathLabel.setText("Path: " + file.getAbsolutePath());
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "The file can't be found or doesn't exist",
                "File not found", JOptionPane.ERROR_MESSAGE);
@@ -712,7 +839,10 @@ public class Manager extends javax.swing.JFrame {
         {
             File root = (File)fileTree.getModel().getRoot();
             TreeModel model = new FileTreeModel(root);
-            fileTree.setModel(model);
+            String filter = filterModel.getFilter();
+            filterModel = new FilteredTreeModel(model);
+            filterModel.setFilter(filter);
+            fileTree.setModel(filterModel);
         }
         catch(Exception e)
         {
@@ -732,9 +862,6 @@ public class Manager extends javax.swing.JFrame {
     //FileTreeModel class allows us to use files in a JTree
     class FileTreeModel implements TreeModel{
         protected File root;
-        private FileFilter dirFilter = new DirOnlyFilter();
-        private FileFilter fileFilter = new FileOnlyFilter();
-        private Comparator fileComp = new FileComparator();
         
         public FileTreeModel (File root)
         {
@@ -805,41 +932,10 @@ public class Manager extends javax.swing.JFrame {
 
         @Override
         public void removeTreeModelListener(TreeModelListener l){}
-        
-        
-        private class DirOnlyFilter implements FileFilter
-        {
-            @Override
-            public boolean accept(File f)
-            {            
-                return f.isDirectory();
-            }        
-        }
-
-        private class FileOnlyFilter implements FileFilter
-        {
-            @Override
-            public boolean accept(File f)
-            {            
-                return !f.isDirectory();
-            }
-        }
-
-        private class FileComparator implements Comparator
-        {
-            @Override
-            public int compare(Object o1, Object o2)
-            {            
-                File f1 = (File)o1;
-                File f2 = (File)o2;
-
-                return f1.getName().compareTo(f2.getName());
-            }        
-        }
     }
     
     //FileTreeCellRenderer shows only the file or directory name in the tree, without the full path
-    public class FileTreeCellRenderer extends DefaultTreeCellRenderer
+    class FileTreeCellRenderer extends DefaultTreeCellRenderer
     {
         private static final long serialVersionUID = 1L;
         private FileSystemView fsv = null;
@@ -872,10 +968,116 @@ public class Manager extends javax.swing.JFrame {
         }	
     }
     
+    //FilteredTreeModel class allows us to filter the nodes when we create the tree
+    class FilteredTreeModel implements TreeModel {
+        private TreeModel treeModel;
+        private String filter;
+
+        public FilteredTreeModel(TreeModel treeModel) {
+            this.treeModel = treeModel;
+            this.filter = "";
+        }
+
+        public TreeModel getTreeModel() {
+            return treeModel;
+        }
+
+        public void setFilter(String filter) {
+            this.filter = filter;
+        }
+        
+        public String getFilter()
+        {  
+            return filter;
+        }
+
+        private boolean recursiveMatch(Object node, String filter) {
+            boolean matches = node.toString().endsWith(filter);
+
+            int childCount = treeModel.getChildCount(node);
+            for (int i = 0; i < childCount; i++) {
+              Object child = treeModel.getChild(node, i);
+              matches |= recursiveMatch(child, filter);
+            }
+
+            return matches;
+        }
+
+        @Override
+        public Object getRoot() {
+            return treeModel.getRoot();
+        }
+
+        @Override
+        public Object getChild(Object parent, int index) {
+          int count = 0;
+          int childCount = treeModel.getChildCount(parent);
+          for (int i = 0; i < childCount; i++) 
+          {
+            Object child = treeModel.getChild(parent, i);
+            if (recursiveMatch(child, filter)) 
+            {
+                if (count == index) 
+                {
+                  return child;
+                }
+                count++;
+            }
+          }
+          return null;
+        }
+
+        @Override
+        public int getChildCount(Object parent) {
+            int count = 0;
+            int childCount = treeModel.getChildCount(parent);
+            for (int i = 0; i < childCount; i++) 
+            {
+              Object child = treeModel.getChild(parent, i);
+                if (recursiveMatch(child, filter)) 
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        @Override
+        public boolean isLeaf(Object node) {
+          return treeModel.isLeaf(node);
+        }
+
+        @Override
+        public void valueForPathChanged(TreePath path, Object newValue) {}
+
+        @Override
+        public int getIndexOfChild(Object parent, Object childToFind){
+            int childCount = treeModel.getChildCount(parent);
+            for (int i = 0; i < childCount; i++) 
+            {
+                Object child = treeModel.getChild(parent, i);
+                if (recursiveMatch(child, filter)) 
+                {
+                    if (childToFind.equals(child)) 
+                    {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        @Override
+        public void addTreeModelListener(TreeModelListener l) {}
+
+        @Override
+        public void removeTreeModelListener(TreeModelListener l) {}
+    }
+    
     //Class to be able to sort the tree
     class SimpleTreeNode extends DefaultMutableTreeNode
     {
-        private final Comparator comparator;
+        private Comparator comparator;
 
         public SimpleTreeNode(Object userObject, Comparator comparator)
         {
@@ -886,6 +1088,11 @@ public class Manager extends javax.swing.JFrame {
         public SimpleTreeNode(Object userObject)
         {
             this(userObject,null);
+        }
+        
+        public void setComparator(Comparator comparator)
+        {
+            this.comparator = comparator;
         }
 
         @Override
@@ -899,6 +1106,33 @@ public class Manager extends javax.swing.JFrame {
         }
     }
 
+    class AlphabeticalComparator implements Comparator
+    {
+        private final boolean order;
+
+        public AlphabeticalComparator()
+        {
+            this(true);
+        }
+
+        public AlphabeticalComparator(boolean order)
+        {
+            this.order = order;
+        }
+
+        @Override
+        public int compare(Object o1, Object o2)
+        {
+            if (order)
+            {
+                return ((File)o1).getName().compareTo(((File)o2).getName());
+            }
+            else
+            {
+                return ((File)o2).getName().compareTo(((File)o1).getName());
+            }
+        }
+    }
     
     //Classes for the popup method showed when you right clicked on the JTree
     class PopUpDemo extends javax.swing.JPopupMenu {
@@ -907,11 +1141,13 @@ public class Manager extends javax.swing.JFrame {
             add(deleteButton);
             add(newButton);
             add(renameButton);
-            add(sortButton);
             add(filterButton);
             add(compressButton);
             add(copyPathButton);
             add(terminalButton);
+            add(chartButton);
+            add(clearFilterButton);
+            add(chartButton1);
             makeButtonVisible();
         }
         
@@ -921,11 +1157,13 @@ public class Manager extends javax.swing.JFrame {
             deleteButton.setVisible(true);
             newButton.setVisible(true);
             renameButton.setVisible(true);
-            sortButton.setVisible(true);
             filterButton.setVisible(true);
             compressButton.setVisible(true);
             copyPathButton.setVisible(true);
             terminalButton.setVisible(true);
+            chartButton.setVisible(true);
+            clearFilterButton.setVisible(true);
+            chartButton1.setVisible(true);
         }
     }
     class PopClickListener extends java.awt.event.MouseAdapter {
@@ -948,6 +1186,9 @@ public class Manager extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel accessedLabel;
     private javax.swing.JPanel attributesPanel;
+    private java.awt.Button chartButton;
+    private java.awt.Button chartButton1;
+    private java.awt.Button clearFilterButton;
     private java.awt.Button compressButton;
     private java.awt.Button copyPathButton;
     private javax.swing.JLabel createdLabel;
@@ -963,12 +1204,13 @@ public class Manager extends javax.swing.JFrame {
     private java.awt.Button openButton;
     private javax.swing.JLabel othersLabel;
     private javax.swing.JLabel ownerLabel;
+    private javax.swing.JLabel pathLabel;
     private javax.swing.JLabel permissionsLabel;
     private java.awt.Button renameButton;
     private javax.swing.JLabel sizeLabel;
-    private java.awt.Button sortButton;
     private java.awt.Button terminalButton;
     private javax.swing.JLabel typeLabel;
     // End of variables declaration//GEN-END:variables
-
+    private FilteredTreeModel filterModel;
+    private ChartFrame cf;
 }
