@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.WindowEvent;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,9 +16,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +27,8 @@ import javax.swing.JTree;
 import javax.swing.Timer;
 import javax.swing.event.TreeModelListener;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.commons.io.FilenameUtils;
 import org.jfree.chart.ChartFactory;
@@ -567,11 +561,19 @@ public class Manager extends javax.swing.JFrame {
                 public void actionPerformed(java.awt.event.ActionEvent e)
                 {
                     File root = (File) fileTree.getModel().getRoot();
-                    int currentChilds = fileTree.getModel().getChildCount((Object)root);
-                    if (currentChilds != initChilds)
-                    {
-                        initChilds = currentChilds;
-                        updateTree(); 
+                    try{
+                        int currentChilds = fileTree.getModel().getChildCount((Object)root);
+                        if (currentChilds != initChilds)
+                        {
+                            initChilds = currentChilds;
+                            updateTree();
+                            if (cfSize.isVisible())
+                                updateSizeChart();
+                            if (cfType.isVisible())
+                                updateTypeChart();
+                        }
+                    }catch(ArrayIndexOutOfBoundsException ex){
+                        updateTree();
                     }
                 }
             });
@@ -583,6 +585,30 @@ public class Manager extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_fileChooserActionPerformed
 
+    //Function to update de Size Pie Chart
+    private void updateSizeChart()
+    {
+        cfSize.dispatchEvent(new WindowEvent(cfSize, WindowEvent.WINDOW_CLOSING));
+        DefaultPieDataset dps = getDataSetBySize(lastSelectedFileSize);
+        JFreeChart chart = ChartFactory.createPieChart("Size distribution", dps, true, true, true);
+        PiePlot P = (PiePlot)chart.getPlot();
+        cfSize = new ChartFrame(lastSelectedFileSize.getName(), chart);
+        cfSize.setVisible(true);
+        cfSize.setSize(800, 800);
+    }
+    
+    //Function to update de Type Pie Chart
+    private void updateTypeChart()
+    {
+        cfType.dispatchEvent(new WindowEvent(cfType, WindowEvent.WINDOW_CLOSING));
+        DefaultPieDataset dps = getDataSetBySize(lastSelectedFileType);
+        JFreeChart chart = ChartFactory.createPieChart("Size distribution", dps, true, true, true);
+        PiePlot P = (PiePlot)chart.getPlot();
+        cfType = new ChartFrame(lastSelectedFileType.getName(), chart);
+        cfType.setVisible(true);
+        cfType.setSize(800, 800);
+    }
+    
     //Listener for row selection
     //According to the number of rows selected, some buttons will be disabled
     private void fileTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_fileTreeValueChanged
@@ -744,13 +770,19 @@ public class Manager extends javax.swing.JFrame {
     }
     //Listener to show a PieChart with the size distribution inside a folder
     private void chartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chartButtonActionPerformed
-        File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
-        DefaultPieDataset dps = getDataSetBySize(selectedFile);
-        JFreeChart chart = ChartFactory.createPieChart("Size distribution", dps, true, true, true);
-        PiePlot P = (PiePlot)chart.getPlot();
-        cf = new ChartFrame(selectedFile.getName() + " in sizes", chart);
-        cf.setVisible(true);
-        cf.setSize(800, 800);
+        try{    
+            File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
+            lastSelectedFileSize = selectedFile;
+            DefaultPieDataset dps = getDataSetBySize(selectedFile);
+            JFreeChart chart = ChartFactory.createPieChart("Size distribution", dps, true, true, true);
+            PiePlot P = (PiePlot)chart.getPlot();
+            cfSize = new ChartFrame(selectedFile.getName(), chart);
+            cfSize.setVisible(true);
+            cfSize.setSize(800, 800);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "The directory can't be open or doesn't exist",
+               "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_chartButtonActionPerformed
 
     //Listener to clear filters
@@ -761,13 +793,19 @@ public class Manager extends javax.swing.JFrame {
 
     //Listener to show a PieChart with the type distribution inside a folder
     private void chartButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chartButton1ActionPerformed
-        File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
-        DefaultPieDataset dps = getDataSetByType(selectedFile);
-        JFreeChart chart = ChartFactory.createPieChart("Type distribution", dps, true, true, true);
-        PiePlot P = (PiePlot)chart.getPlot();
-        cf = new ChartFrame(selectedFile.getName() + "in types", chart);
-        cf.setVisible(true);
-        cf.setSize(800, 800);
+        try{
+            File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
+            lastSelectedFileType = selectedFile;
+            DefaultPieDataset dps = getDataSetByType(selectedFile);
+            JFreeChart chart = ChartFactory.createPieChart("Type distribution", dps, true, true, true);
+            PiePlot P = (PiePlot)chart.getPlot();
+            cfType = new ChartFrame(selectedFile.getName() + "in types", chart);
+            cfType.setVisible(true);
+            cfType.setSize(800, 800);
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "The directory can't be open or doesn't exist",
+               "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_chartButton1ActionPerformed
 
     //Function to show the attribute's values on the labels
@@ -1074,66 +1112,6 @@ public class Manager extends javax.swing.JFrame {
         public void removeTreeModelListener(TreeModelListener l) {}
     }
     
-    //Class to be able to sort the tree
-    class SimpleTreeNode extends DefaultMutableTreeNode
-    {
-        private Comparator comparator;
-
-        public SimpleTreeNode(Object userObject, Comparator comparator)
-        {
-            super(userObject);
-            this.comparator = comparator;
-        }
-
-        public SimpleTreeNode(Object userObject)
-        {
-            this(userObject,null);
-        }
-        
-        public void setComparator(Comparator comparator)
-        {
-            this.comparator = comparator;
-        }
-
-        @Override
-        public void add(MutableTreeNode newChild)
-        {
-            super.add(newChild);
-            if (this.comparator != null)
-            {
-                Collections.sort(this.children,this.comparator);
-            }
-        }
-    }
-
-    class AlphabeticalComparator implements Comparator
-    {
-        private final boolean order;
-
-        public AlphabeticalComparator()
-        {
-            this(true);
-        }
-
-        public AlphabeticalComparator(boolean order)
-        {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(Object o1, Object o2)
-        {
-            if (order)
-            {
-                return ((File)o1).getName().compareTo(((File)o2).getName());
-            }
-            else
-            {
-                return ((File)o2).getName().compareTo(((File)o1).getName());
-            }
-        }
-    }
-    
     //Classes for the popup method showed when you right clicked on the JTree
     class PopUpDemo extends javax.swing.JPopupMenu {
         public PopUpDemo() {
@@ -1212,5 +1190,8 @@ public class Manager extends javax.swing.JFrame {
     private javax.swing.JLabel typeLabel;
     // End of variables declaration//GEN-END:variables
     private FilteredTreeModel filterModel;
-    private ChartFrame cf;
+    private ChartFrame cfSize;
+    private ChartFrame cfType;
+    private File lastSelectedFileSize;
+    private File lastSelectedFileType;
 }
