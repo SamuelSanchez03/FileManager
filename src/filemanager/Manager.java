@@ -36,24 +36,31 @@ import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
+import java.awt.Color;
+import javax.swing.text.html.HTMLEditorKit;
 
 public class Manager extends javax.swing.JFrame {
     public Manager() {
         initComponents();
+        this.setBackground(java.awt.Color.BLACK);
+        this.setLocationRelativeTo(null);
+        //this.setVisible(false);
     }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        fileChooser = new javax.swing.JFileChooser();
+        jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         fileTree = new javax.swing.JTree();
+        fileChooser = new JFileChooserArqs();
         renameButton = new java.awt.Button();
-        deleteButton = new java.awt.Button();
         newButton = new java.awt.Button();
+        deleteButton = new java.awt.Button();
         openButton = new java.awt.Button();
         filterButton = new java.awt.Button();
+        compressButton = new java.awt.Button();
         attributesPanel = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
         accessedLabel = new javax.swing.JLabel();
@@ -66,7 +73,6 @@ public class Manager extends javax.swing.JFrame {
         groupLabel = new javax.swing.JLabel();
         othersLabel = new javax.swing.JLabel();
         pathLabel = new javax.swing.JLabel();
-        compressButton = new java.awt.Button();
         copyPathButton = new java.awt.Button();
         terminalButton = new java.awt.Button();
         chartButton = new java.awt.Button();
@@ -74,20 +80,19 @@ public class Manager extends javax.swing.JFrame {
         chartButton1 = new java.awt.Button();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(0, 0, 0));
         setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH
 
         );
-        setMinimumSize(new java.awt.Dimension(500, 500));
-        setUndecorated(true);
+        setMinimumSize(new java.awt.Dimension(800, 500));
         setResizable(false);
-        setSize(new java.awt.Dimension(1200, 800));
+        setSize(new java.awt.Dimension(200, 500));
 
-        fileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
-        fileChooser.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileChooserActionPerformed(evt);
-            }
-        });
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel1.setForeground(new java.awt.Color(0, 0, 0));
+        jPanel1.setPreferredSize(new java.awt.Dimension(1574, 888));
+
+        jScrollPane1.setBorder(null);
 
         TreeModel model = new FileTreeModel();
         fileTree.setCellRenderer(new FileTreeCellRenderer());
@@ -95,7 +100,9 @@ public class Manager extends javax.swing.JFrame {
         fileTree.setModel(model);
 
         //fileTree.setVisible(false);
-        fileTree.setFont(new java.awt.Font("Liberation Sans", 0, 18)); // NOI18N
+        fileTree.setBackground(new java.awt.Color(255, 255, 255));
+        fileTree.setBorder(null);
+        fileTree.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
         fileTree.setMaximumSize(new java.awt.Dimension(78, 482));
         fileTree.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -110,6 +117,17 @@ public class Manager extends javax.swing.JFrame {
         fileTree.addMouseListener(new PopClickListener());
         jScrollPane1.setViewportView(fileTree);
 
+        fileChooser.setBackground(new java.awt.Color(0, 0, 0));
+        fileChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setFont(new java.awt.Font("DejaVu Sans", 0, 36)); // NOI18N
+        fileChooser.setForeground(new java.awt.Color(255, 51, 51));
+        fileChooser.setBorder(null);
+        fileChooser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileChooserActionPerformed(evt);
+            }
+        });
+
         renameButton.setEnabled(false);
         renameButton.setLabel("Rename");
         renameButton.setVisible(false);
@@ -119,21 +137,21 @@ public class Manager extends javax.swing.JFrame {
             }
         });
 
-        deleteButton.setEnabled(false);
-        deleteButton.setLabel("Delete");
-        deleteButton.setVisible(false);
-        deleteButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteButtonActionPerformed(evt);
-            }
-        });
-
         newButton.setEnabled(false);
         newButton.setLabel("New Folder");
         newButton.setVisible(false);
         newButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newButtonActionPerformed(evt);
+            }
+        });
+
+        deleteButton.setEnabled(false);
+        deleteButton.setLabel("Delete");
+        deleteButton.setVisible(false);
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
             }
         });
 
@@ -154,79 +172,112 @@ public class Manager extends javax.swing.JFrame {
             }
         });
 
+        compressButton.setLabel("Compress (files only)");
+        compressButton.setVisible(false);
+        compressButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compressButtonActionPerformed(evt);
+            }
+        });
+
+        attributesPanel.setBackground(new java.awt.Color(51, 51, 51));
         attributesPanel.setMinimumSize(new java.awt.Dimension(137, 196));
         attributesPanel.setPreferredSize(new java.awt.Dimension(600, 384));
 
-        nameLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        nameLabel.setBackground(new java.awt.Color(0, 0, 0));
+        nameLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        nameLabel.setForeground(new java.awt.Color(169, 135, 255));
         nameLabel.setText("Name:");
 
-        accessedLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        accessedLabel.setBackground(new java.awt.Color(0, 0, 0));
+        accessedLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        accessedLabel.setForeground(new java.awt.Color(169, 135, 255));
         accessedLabel.setText("Accessed:");
 
-        modifiedLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        modifiedLabel.setBackground(new java.awt.Color(0, 0, 0));
+        modifiedLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        modifiedLabel.setForeground(new java.awt.Color(169, 135, 255));
         modifiedLabel.setText("Modified:");
 
-        createdLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        createdLabel.setBackground(new java.awt.Color(0, 0, 0));
+        createdLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        createdLabel.setForeground(new java.awt.Color(169, 135, 255));
         createdLabel.setText("Created:");
 
-        sizeLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        sizeLabel.setBackground(new java.awt.Color(0, 0, 0));
+        sizeLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        sizeLabel.setForeground(new java.awt.Color(169, 135, 255));
         sizeLabel.setText("Size:");
 
-        typeLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        typeLabel.setBackground(new java.awt.Color(0, 0, 0));
+        typeLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        typeLabel.setForeground(new java.awt.Color(169, 135, 255));
         typeLabel.setText("Type:");
 
-        permissionsLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        permissionsLabel.setBackground(new java.awt.Color(0, 0, 0));
+        permissionsLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        permissionsLabel.setForeground(new java.awt.Color(169, 135, 255));
         permissionsLabel.setText("Permissions:");
 
-        ownerLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        ownerLabel.setBackground(new java.awt.Color(0, 0, 0));
+        ownerLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        ownerLabel.setForeground(new java.awt.Color(169, 231, 255));
         ownerLabel.setText("Owner:");
 
-        groupLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        groupLabel.setBackground(new java.awt.Color(0, 0, 0));
+        groupLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        groupLabel.setForeground(new java.awt.Color(222, 84, 166));
         groupLabel.setText("Group:");
 
-        othersLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        othersLabel.setBackground(new java.awt.Color(0, 0, 0));
+        othersLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        othersLabel.setForeground(new java.awt.Color(153, 228, 153));
         othersLabel.setText("Others:");
 
-        pathLabel.setFont(new java.awt.Font("Liberation Sans", 0, 24)); // NOI18N
+        pathLabel.setBackground(new java.awt.Color(0, 0, 0));
+        pathLabel.setFont(new java.awt.Font("DejaVu Sans", 0, 24)); // NOI18N
+        pathLabel.setForeground(new java.awt.Color(169, 135, 255));
         pathLabel.setText("Path:");
+        pathLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout attributesPanelLayout = new javax.swing.GroupLayout(attributesPanel);
         attributesPanel.setLayout(attributesPanelLayout);
         attributesPanelLayout.setHorizontalGroup(
             attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(attributesPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(attributesPanelLayout.createSequentialGroup()
-                        .addComponent(permissionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(othersLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(groupLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ownerLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(attributesPanelLayout.createSequentialGroup()
-                        .addGroup(attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(accessedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(modifiedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(typeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(createdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, attributesPanelLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 600, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addGroup(attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, attributesPanelLayout.createSequentialGroup()
+                                .addComponent(permissionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addGroup(attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(othersLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(groupLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(ownerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 397, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(sizeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pathLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, attributesPanelLayout.createSequentialGroup()
+                                .addGroup(attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(modifiedLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(accessedLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(nameLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 20, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addComponent(createdLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(typeLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         attributesPanelLayout.setVerticalGroup(
             attributesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(attributesPanelLayout.createSequentialGroup()
-                .addGap(1, 1, 1)
                 .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(accessedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(modifiedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(7, 7, 7)
                 .addComponent(createdLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sizeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -241,17 +292,9 @@ public class Manager extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(othersLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addComponent(pathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        compressButton.setLabel("Compress");
-        compressButton.setVisible(false);
-        compressButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                compressButtonActionPerformed(evt);
-            }
-        });
 
         copyPathButton.setLabel("Copy as Path");
         copyPathButton.setVisible(false);
@@ -297,19 +340,12 @@ public class Manager extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 612, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(attributesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 956, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(renameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -320,7 +356,7 @@ public class Manager extends javax.swing.JFrame {
                 .addGap(0, 0, 0)
                 .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(compressButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(copyPathButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(terminalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -328,40 +364,67 @@ public class Manager extends javax.swing.JFrame {
                     .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(chartButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 648, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(attributesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 632, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 634, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(98, 98, 98))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addGap(1207, 1207, 1207)
+                        .addComponent(compressButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(copyPathButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(terminalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(chartButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(chartButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(28, 28, 28)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 840, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(openButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                    .addComponent(renameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addGap(16, 16, 16)
+                                .addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(attributesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 468, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(55, 55, 55)
+                .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1428, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .addGap(142, 142, 142))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(openButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(renameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
-                .addGap(1065, 1065, 1065)
-                .addComponent(compressButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55)
-                .addComponent(copyPathButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55)
-                .addComponent(terminalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55)
-                .addComponent(chartButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55)
-                .addComponent(chartButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(55, 55, 55)
-                .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(fileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(attributesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 896, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -770,19 +833,20 @@ public class Manager extends javax.swing.JFrame {
     }
     //Listener to show a PieChart with the size distribution inside a folder
     private void chartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chartButtonActionPerformed
-        try{    
+    try {
             File selectedFile = new File(fileTree.getLastSelectedPathComponent().toString());
             lastSelectedFileSize = selectedFile;
             DefaultPieDataset dps = getDataSetBySize(selectedFile);
             JFreeChart chart = ChartFactory.createPieChart("Size distribution", dps, true, true, true);
-            PiePlot P = (PiePlot)chart.getPlot();
-            cfSize = new ChartFrame(selectedFile.getName(), chart);
+            PiePlot P = (PiePlot) chart.getPlot();
+            ChartFrame cfSize = new ChartFrame(selectedFile.getName(), chart);
+            cfSize.getChartPanel().setBackground(Color.BLACK); // Set background color
             cfSize.setVisible(true);
             cfSize.setSize(800, 800);
-        }catch(Exception e){
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "The directory can't be open or doesn't exist",
-               "Error", JOptionPane.ERROR_MESSAGE);
-        }
+                    "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_chartButtonActionPerformed
 
     //Listener to clear filters
@@ -800,6 +864,7 @@ public class Manager extends javax.swing.JFrame {
             JFreeChart chart = ChartFactory.createPieChart("Type distribution", dps, true, true, true);
             PiePlot P = (PiePlot)chart.getPlot();
             cfType = new ChartFrame(selectedFile.getName() + "in types", chart);
+            cfType.getChartPanel().setBackground(Color.BLACK);
             cfType.setVisible(true);
             cfType.setSize(800, 800);
         }catch(Exception e){
@@ -811,20 +876,21 @@ public class Manager extends javax.swing.JFrame {
     //Function to show the attribute's values on the labels
     public void showAttributes(File file)
     {
-        nameLabel.setText("Name: " + file.getName());
+        nameLabel.setText("<html>Name: <font color='white'>" + file.getName() + "</font></html>");
+        HTMLEditorKit htmlEditorKit = new HTMLEditorKit();
         Path path = Paths.get(file.getPath());
         BasicFileAttributes attr;
         try {
             attr = Files.readAttributes(path, BasicFileAttributes.class);
-            accessedLabel.setText("Accessed: " + attr.lastAccessTime());
-            modifiedLabel.setText("Modified: " + attr.lastModifiedTime());
-            createdLabel.setText("Created: " + attr.creationTime());
-            sizeLabel.setText("Size: " + attr.size() + " bytes");
+            accessedLabel.setText("<html>Accessed: <font color='white'>" + attr.lastAccessTime() + "</font></html>");
+            modifiedLabel.setText("<html>Modified: <font color='white'>" + attr.lastModifiedTime() + "</font></html>");
+            createdLabel.setText("<html>Created: <font color='white'>" + attr.creationTime() + "</font></html>");
+            sizeLabel.setText("<html>Size: <font color='white'>" + attr.size() + " bytes" + "</font></html>");
             Set<PosixFilePermission> filePermissions = Files.getPosixFilePermissions(path);
             showPermissions(filePermissions);
             String fileExtension = (file.isDirectory() == true) ? "Directory" : FilenameUtils.getExtension(file.getPath());
-            typeLabel.setText("Type: " + fileExtension);
-            pathLabel.setText("Path: " + file.getAbsolutePath());
+            typeLabel.setText("<html>Type: <font color='white'>" + fileExtension + "</font></html>");
+            pathLabel.setText("<html>Path: <font color='white'>" + file.getAbsolutePath() + "</font></html>");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "The file can't be found or doesn't exist",
                "File not found", JOptionPane.ERROR_MESSAGE);
@@ -1030,7 +1096,7 @@ public class Manager extends javax.swing.JFrame {
         }
 
         private boolean recursiveMatch(Object node, String filter) {
-            boolean matches = node.toString().endsWith(filter);
+            boolean matches = node.toString().contains(filter);
 
             int childCount = treeModel.getChildCount(node);
             for (int i = 0; i < childCount; i++) {
@@ -1175,6 +1241,7 @@ public class Manager extends javax.swing.JFrame {
     private javax.swing.JTree fileTree;
     private java.awt.Button filterButton;
     private javax.swing.JLabel groupLabel;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel modifiedLabel;
     private javax.swing.JLabel nameLabel;
